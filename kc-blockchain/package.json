@@ -1,0 +1,22 @@
+{
+  "name": "kc-blockchain",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "compile": "truffle compile && cp build/contracts/FKC* ../kc-frontend/app/abi && cp build/contracts/FKC* ../kc-serverless/abi",
+    "test": "truffle test",
+    "build:ganache": "docker build -t ganache .",
+    "start:ganache": "docker run --name kc-ganache -d -p 8545:8545 ganache && truffle migrate --network development",
+    "stop:ganache": "docker stop kc-ganache && docker container remove kc-ganache"
+  },
+  "dependencies": {
+    "@gelatonetwork/relay-sdk": "^5.0.0",
+    "@openzeppelin/contracts": "^4.9.3",
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "web3": "^4.1.0"
+  },
+  "devDependencies": {
+    "@gelatonetwork/relay-context": "^3.0.0",
+    "bignumber.js": "^9.1.1"
+  }
+}

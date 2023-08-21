@@ -1,0 +1,14 @@
+{
+  "name": "kingscounsel",
+  "version": "1.0.0",
+  "description": "Kings Counsel is a multi-player co-op chess game built on Linea for the NAVH 2023",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "sprect8",
+  "license": "MIT",
+  "devDependencies": {
+    "serverless-offline-schedule": "^1.0.4"
+  }
+}

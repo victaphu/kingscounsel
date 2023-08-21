@@ -1,0 +1,15 @@
+service: kc-serverless
+frameworkVersion: '3'
+plugins:
+  - serverless-offline-scheduler
+  - serverless-offline
+provider:
+  name: aws
+  runtime: nodejs18.x
+
+functions:
+  cronHandler:
+    handler: index.run
+    events:
+      # Invoke Lambda function every 2nd minute from Mon-Fri
+      - schedule: rate(1 minute)

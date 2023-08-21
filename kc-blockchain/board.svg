@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="360" height="380">
+<rect width="360" height="380" fill="#EBECD0"/>
+<path d="M0,0V360H45V0zM90,0V360H135V0zM180,0V360H225V0zM270,0V360H315V0zM0,0H360V45H0zM0,90H360V135H0zM0,180H360V225H0zM0,270H360V315H0z" fill="#779556" fill-rule="evenodd"/>
+<style>
+.small {
+  font: 45px courier;
+}
+</style>
+<text x="10" y="35" class="small" xml:space="preserve" textLength="340px">♜♞♝ ♚♝♞♜</text>
+<text x="10" y="80" class="small" xml:space="preserve" textLength="340px">♟♟♟♟ ♟♟♟</text>
+<text x="10" y="125" class="small" xml:space="preserve" textLength="340px">        </text>
+<text x="10" y="170" class="small" xml:space="preserve" textLength="340px">    ♟   </text>
+<text x="10" y="215" class="small" xml:space="preserve" textLength="340px">      ♙♛</text>
+<text x="10" y="260" class="small" xml:space="preserve" textLength="340px">     ♙  </text>
+<text x="10" y="305" class="small" xml:space="preserve" textLength="340px">♙♙♙♙♙  ♙</text>
+<text x="10" y="350" class="small" xml:space="preserve" textLength="340px">♖♘♗♕♔♗♘♖</text>
+
+<text x="190" y="370" style="font: 12px courier; fill: black">BLACK WIN [sprect8.eth]</text>
+</svg>
