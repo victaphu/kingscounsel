@@ -73,6 +73,14 @@ contract FKCController is IERC721Receiver, Ownable2Step {
         revert("cannot renounce ownership");
     }
 
+    function getCurrentGameState() external view returns (IFKCGame.GameState memory) {
+        return gameState.getGameState(currentToken);
+    }
+
+    function getCurrentGame() external view returns (Game memory) {
+        return games[currentToken - 1];
+    }
+
     /**
      * @notice Configures the game state and initializes the first game.
      * @param _gameState The game state contract to be set.
@@ -162,6 +170,11 @@ contract FKCController is IERC721Receiver, Ownable2Step {
         emit UserRegistered(msg.sender, isBlack);
     }
 
+    function checkAndUpdateMoveMade(uint256 step) private {
+        require(playerMovesMade[msg.sender] < step + (500 * currentToken), "move already made"); // max 500 moves per game
+        playerMovesMade[msg.sender] = step + (500 * currentToken);
+    }
+
     /**
      * @notice Allows a player to propose resignation.
      * @param step The current game step.
@@ -169,9 +182,8 @@ contract FKCController is IERC721Receiver, Ownable2Step {
     function proposeResign(uint256 step) external validPlayer {
         Game storage current = games[currentToken - 1];
         require(step == current.currentStep, "move made for step invalid");
-        require(playerMovesMade[msg.sender] < step, "move already made");
-        current.proposeResign = current.proposeResign + 1;
-        playerMovesMade[msg.sender] = step;
+        checkAndUpdateMoveMade(step);
+        current.proposeResign = current.proposeResign + 1;        
     }
 
     /**
@@ -182,15 +194,13 @@ contract FKCController is IERC721Receiver, Ownable2Step {
     function requestMove(bytes4 move, uint256 step) external validPlayer {
         Game storage current = games[currentToken - 1];
         require(step == current.currentStep, "move made for step invalid");
-        require(playerMovesMade[msg.sender] < step, "move already made");
+        checkAndUpdateMoveMade(step);
         
         if (movesRequest[move] == 0) {
             current.proposedMoves.push(move);
         }
         movesRequest[move] += 1;
         current.totalTokens += 1;
-
-        playerMovesMade[msg.sender] = step;
 
         // Move Requested
         emit MoveProposed(msg.sender, move, step);
