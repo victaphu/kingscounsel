@@ -56,19 +56,129 @@ const Integrator: React.FC = () => {
       {
         chainId: 59144,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
-        abi: fkcController.abi,
+        abi: [{
+          "inputs": [],
+          "name": "getCurrentGameState",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "whitePlayers",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "blackPlayers",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "string",
+                  "name": "currentGameState",
+                  "type": "string"
+                },
+                {
+                  "internalType": "bytes4[]",
+                  "name": "movesHistory",
+                  "type": "bytes4[]"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "gameCompleted",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "result",
+                  "type": "uint8"
+                }
+              ],
+              "internalType": "struct IFKCGame.GameState",
+              "name": "",
+              "type": "tuple"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }],
         functionName: 'getCurrentGameState'
       },
       {
         chainId: 59144,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
-        abi: fkcController.abi,
+        abi: [{
+          "inputs": [],
+          "name": "getCurrentGame",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "gameId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nextPlayTimer",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isBlackToPlay",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "totalTokens",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes4[]",
+                  "name": "proposedMoves",
+                  "type": "bytes4[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "proposeResign",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "proposeDraw",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "currentStep",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct FKCController.Game",
+              "name": "",
+              "type": "tuple"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }],
         functionName: 'getCurrentGame'
       },
       {
         chainId: 59144,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
-        abi: fkcController.abi,
+        abi: [{
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "currentToken",
+              "type": "uint256"
+            }
+          ],
+          "name": "NewGameCreated",
+          "type": "event"
+        }],
         functionName: 'currentToken'
       }
     ],

@@ -19,23 +19,112 @@ export default function NftLoader({ params }: { params: { nftId: string } }) {
 
       {
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCGAME!}`,
-        abi: gameObj.abi,
+        abi: [{
+          "inputs": [],
+          "name": "name",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "constant": true
+        }],
         functionName: 'name',
       },
       {
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCGAME!}`,
-        abi: gameObj.abi,
+        abi: [{
+          "inputs": [],
+          "name": "symbol",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "constant": true
+        }],
         functionName: 'symbol',
       },
       {
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCGAME!}`,
-        abi: gameObj.abi,
+        abi: [  {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            }
+          ],
+          "name": "getGameState",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "whitePlayers",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "blackPlayers",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "string",
+                  "name": "currentGameState",
+                  "type": "string"
+                },
+                {
+                  "internalType": "bytes4[]",
+                  "name": "movesHistory",
+                  "type": "bytes4[]"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "gameCompleted",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "result",
+                  "type": "uint8"
+                }
+              ],
+              "internalType": "struct IFKCGame.GameState",
+              "name": "",
+              "type": "tuple"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "constant": true
+        }],
         functionName: 'getGameState',
         args: [nft]
       },
       {
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
-        abi: controller.abi,
+        abi: [{
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "currentToken",
+              "type": "uint256"
+            }
+          ],
+          "name": "NewGameCreated",
+          "type": "event"
+        }],
         functionName: 'currentToken'
       }
     ],
