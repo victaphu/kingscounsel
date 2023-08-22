@@ -50,3 +50,31 @@ The tech used include:
 Proposed:
 - Gelato for gasless meta transactions
 - Push for notifications
+
+## To Run
+Install serverless: https://www.serverless.com/framework/docs/getting-started
+Install docker
+
+### Start the blockchain Service
+```
+cd kc-blockchain
+npm install
+npm run build:ganache
+npm run start:ganache 
+```
+
+### Start the serverless component
+```
+cd kc-serverless
+npm install
+serverless offline start
+```
+
+### Start the UI
+```
+cd kc-frontend
+npm install
+npm run dev
+```
+
+You can use the sample.env.local files (rename them to .env.local) in each folder for the correct environment variables
