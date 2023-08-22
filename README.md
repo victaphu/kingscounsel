@@ -35,6 +35,8 @@ I was planning to integrate
 ## The actuals
 URL: https://kingscounsel.netlify.app/ (I am having issues deploying it)
 
+Video: https://youtu.be/k7Pt5A4_YWE
+
 Targeting chess enthusiasts by rewarding them tokens when they win the game. A bit of fun where users can collaborate to battle. 
 
 The tech used include:
