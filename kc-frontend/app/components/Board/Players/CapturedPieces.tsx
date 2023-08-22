@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import { FigureData, Figures, calculateScore } from "@/app/common/types";
 import Figure from "@/app/components/Figure/Figure";

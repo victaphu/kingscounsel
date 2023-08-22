@@ -7,16 +7,23 @@
     "test": "truffle test",
     "build:ganache": "docker build -t ganache .",
     "start:ganache": "docker run --name kc-ganache -d -p 8545:8545 ganache && truffle migrate --network development",
-    "stop:ganache": "docker stop kc-ganache && docker container remove kc-ganache"
+    "stop:ganache": "docker stop kc-ganache && docker container remove kc-ganache",
+    "deploy:mainnet": "truffle migrate --network linea_mainnet",
+    "simulate:mainnet": "truffle migrate --dry-run --network linea_mainnet",
+    "verify:mainnet": "truffle run verify FKCController.sol FKCGame.sol --network linea_mainnet"
   },
   "dependencies": {
     "@gelatonetwork/relay-sdk": "^5.0.0",
     "@openzeppelin/contracts": "^4.9.3",
     "@openzeppelin/test-helpers": "^0.5.16",
+    "truffle-flattener": "^1.6.0",
+    "truffle-plugin-verify": "^0.6.5",
     "web3": "^4.1.0"
   },
   "devDependencies": {
     "@gelatonetwork/relay-context": "^3.0.0",
-    "bignumber.js": "^9.1.1"
+    "@truffle/hdwallet-provider": "^2.1.13",
+    "bignumber.js": "^9.1.1",
+    "dotenv": "^16.3.1"
   }
 }

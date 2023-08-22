@@ -12,6 +12,16 @@ export enum Figures {
 	KING = 'king',
 }
 
+// for fen to config 
+export const nameMapping : { [key: string] : Figures} = {
+	'P': Figures.PAWN,
+	'N': Figures.KNIGHT,
+	'B': Figures.BISHOP,
+	'R': Figures.ROOK,
+	'Q': Figures.QUEEN,
+	'K': Figures.KING,
+} 
+
 export interface Nft {
 	boardState: { [key: string]: FigureData },
 	nftId: number,

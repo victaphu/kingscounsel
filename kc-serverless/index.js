@@ -16,62 +16,62 @@ const COLORS = {
   WHITE: 'white',
 }
 
-function isLocationValid (location) {
+function isLocationValid(location) {
   return typeof location === 'string' && location.match('^[a-hA-H]{1}[1-8]{1}$')
 }
 
-function getJSONfromFEN (fen = '') {
+function getJSONfromFEN(fen = '') {
   const [board, player, castlings, enPassant, halfmove, fullmove] = fen.split(' ')
 
   // pieces
   const configuration = {
-      pieces: Object.fromEntries(board.split('/').flatMap((row, rowIdx) => {
-          let colIdx = 0
-          return row.split('').reduce((acc, sign) => {
-              const piece = sign.match(/k|b|q|n|p|r/i)
-              if (piece) {
-                  acc.push([`${COLUMNS[colIdx]}${ROWS[7 - rowIdx]}`, piece[0]])
-                  colIdx += 1
-              }
-              const squares = sign.match(/[1-8]/)
-              if (squares) {
-                  colIdx += Number(squares)
-              }
-              return acc
-          }, [])
-      })),
+    pieces: Object.fromEntries(board.split('/').flatMap((row, rowIdx) => {
+      let colIdx = 0
+      return row.split('').reduce((acc, sign) => {
+        const piece = sign.match(/k|b|q|n|p|r/i)
+        if (piece) {
+          acc.push([`${COLUMNS[colIdx]}${ROWS[7 - rowIdx]}`, piece[0]])
+          colIdx += 1
+        }
+        const squares = sign.match(/[1-8]/)
+        if (squares) {
+          colIdx += Number(squares)
+        }
+        return acc
+      }, [])
+    })),
   }
 
   // playing player
   if (player === 'b') {
-      configuration.turn = COLORS.BLACK
+    configuration.turn = COLORS.BLACK
   } else {
-      configuration.turn = COLORS.WHITE
+    configuration.turn = COLORS.WHITE
   }
 
   // castlings
   configuration.castling = {
-      whiteLong: false,
-      whiteShort: false,
-      blackLong: false,
-      blackShort: false,
+    whiteLong: false,
+    whiteShort: false,
+    blackLong: false,
+    blackShort: false,
   }
   if (castlings.includes('K')) {
-      configuration.castling.whiteShort = true
+    configuration.castling.whiteShort = true
   }
   if (castlings.includes('k')) {
-      configuration.castling.blackShort = true
+    configuration.castling.blackShort = true
   }
   if (castlings.includes('Q')) {
-      configuration.castling.whiteLong = true
+    configuration.castling.whiteLong = true
   }
   if (castlings.includes('q')) {
-      configuration.castling.blackLong = true
+    configuration.castling.blackLong = true
   }
 
   // enPassant
   if (isLocationValid(enPassant)) {
-      configuration.enPassant = enPassant.toUpperCase()
+    configuration.enPassant = enPassant.toUpperCase()
   }
 
   // halfmoves
@@ -99,7 +99,7 @@ const registerPlayers = async (wallets, contract, currentGame, isBlack) => {
   }));
 }
 
-const makeNextMove = async(contract, nextMove, owner, gameContract) => {
+const makeNextMove = async (contract, nextMove, owner, gameContract) => {
   console.log(' committing move to the blockchain');
   const currentGame = (await contract.currentToken());
   const gameState = await gameContract.getGameState(currentGame);
@@ -138,10 +138,10 @@ const createWallets = async (provider) => {
 
 const chooseMoves = async (wallets, contract, gameState, currentStep, isBlack) => {
   console.log('Making moves for', isBlack ? "Black players" : "White players", "current step", currentStep);
-  const knowledge = isBlack ? 2 : 3;
+  const knowledge = isBlack ? 1 : 3;
 
   const fen = gameState.currentGameState;
-  console.log(' current state is', fen);
+  console.log(' current state is', fen, currentStep);
   // console.log(getJSONfromFEN(fen));
   const config = getJSONfromFEN(fen);
   // wallet 1 - smart
@@ -169,26 +169,50 @@ const processor = async (event, context) => {
   const provider = new ethers.providers.JsonRpcProvider(process.env.PROVIDER);
   const { b1, b2, b3, w1, w2, w3, owner } = await createWallets(provider);
 
-  console.log(`Bot Players starting up`);
+  console.log(`Bot Players starting up ${new Date()}`);
   const contract = new ethers.Contract(process.env.CONTRACT_FKCCONTROLLER, contractObj.abi, provider);
   const gameContract = new ethers.Contract(process.env.CONTRACT_FKCGAME, gameObj.abi, provider);
+
+  // for (let i = 0; i < 30; ++i) {
   const nextMove = await contract.canMoveNext();
 
+  console.log('next move is', nextMove);
+
   if (nextMove.total.gt(0)) {
-    await makeNextMove(contract, nextMove, owner, gameContract);
+    try {
+      await makeNextMove(contract, nextMove, owner, gameContract);
+    }
+    catch (e) {
+      console.log('exception thrown trying to make the next move. maybe it will work next round', e);
+      return;
+    }
   }
   const currentGame = (await contract.currentToken());
   const gameState = await gameContract.getGameState(currentGame);
   const game = await contract.games(currentGame - 1);
-  
-  if (game.isBlackToPlay) {
-    await registerPlayers([b1, b2, b3], contract, currentGame, true);
-    await chooseMoves([b1, b2, b3], contract, gameState, game.currentStep, true);
-  } else {
-    await registerPlayers([w1, w2, w3], contract, currentGame, false);
-    await chooseMoves([w1, w2, w3], contract, gameState, game.currentStep, false);
+
+  // console.log(game, game.nextPlayTimer.toNumber(), Date.now());
+  if ((game.nextPlayTimer.toNumber() * 1000 - Date.now()) / 1000 > 570) {
+    console.log((game.nextPlayTimer.toNumber() * 1000 - Date.now()) / 1000);
+    console.log('  Giving system time to process');
+    return;
   }
-  // console.log(await contract.games(0));
+
+  try {
+    if (game.isBlackToPlay) {
+      await registerPlayers([b1, b2, b3], contract, currentGame, true);
+      await chooseMoves([b1, b2, b3], contract, gameState, game.currentStep, true);
+    } else {
+      await registerPlayers([w1, w2, w3], contract, currentGame, false);
+      await chooseMoves([w1, w2, w3], contract, gameState, game.currentStep, false);
+    }
+    console.log(' Processing completed');
+  }
+  catch (e) {
+    console.log('exception thrown trying to propose a move, maybe it will work next round', e);
+    return;
+  }
 };
 
 module.exports.run = processor
+

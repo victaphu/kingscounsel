@@ -8,8 +8,10 @@ provider:
   runtime: nodejs18.x
 
 functions:
-  cronHandler:
+  botsPlayer:
     handler: index.run
+    timeout: 60
     events:
       # Invoke Lambda function every 2nd minute from Mon-Fri
       - schedule: rate(1 minute)
+

@@ -1,3 +1,6 @@
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+require("dotenv").config();
+const { INFURA_API_KEY, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
 module.exports = {
   networks: {
     development: {
@@ -6,7 +9,22 @@ module.exports = {
      network_id: "*"
     },
     dashboard: {
+    },
+    linea_testnet: {
+      provider: () => {
+        return new HDWalletProvider({ privateKeys: [PRIVATE_KEY], providerOrUrl: `https://linea-goerli.infura.io/v3/${INFURA_API_KEY}`})
+      },
+      network_id: "59140"
+    },
+    linea_mainnet: {
+      provider: () => { 
+        return new HDWalletProvider({ privateKeys: [PRIVATE_KEY], providerOrUrl: `https://linea-mainnet.infura.io/v3/${INFURA_API_KEY}`})
+      },
+      network_id: "59144",
     }
+  },
+  api_keys: {
+    etherscan: ETHERSCAN_API_KEY
   },
   compilers: {
     solc: {
@@ -16,5 +34,6 @@ module.exports = {
   db: {
     enabled: false,
     host: "127.0.0.1",
-  }
+  },
+  plugins: ['truffle-plugin-verify']
 };

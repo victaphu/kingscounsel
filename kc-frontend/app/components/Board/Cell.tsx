@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import styles from "./Board.module.scss";
 import { BoardNumberByLetter, Colors } from "@/app/common/types";

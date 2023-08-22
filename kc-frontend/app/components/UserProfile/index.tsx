@@ -112,8 +112,8 @@ const UserProfile: React.FC<UserProfileProps> = (props: UserProfileProps) => {
               </thead>
               <tbody>
                 {
-                  SampleUser.gamesPlayed.map(game => {
-                    return <tr className="cursor-pointer hover" onClick={() => window.open(`/history/${game.nftId}`)}>
+                  SampleUser.gamesPlayed.map((game, id) => {
+                    return <tr className="cursor-pointer hover" onClick={() => window.open(`/history/${game.nftId}`)} key={id}>
                       <td className="relative hover">{game.nftId}</td>
                       <td className="relative hover">{game.color === Colors.WHITE ? WHITE_PIECE : BLACK_PIECE}</td>
                       <td className="relative hover">{game.tokens}</td>

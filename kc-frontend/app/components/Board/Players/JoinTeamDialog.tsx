@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import { Colors, Move, Player } from "@/app/common/types";
 import { getOtherColor, getPlayerIcon } from "@/app/common/lib";
@@ -6,7 +7,7 @@ import { setColor, setJoined, setShowJoin } from "@/app/redux/gameSlice";
 import { useAccount, useConnect, useDisconnect, useNetwork, useSwitchNetwork } from "wagmi";
 import { FaGoogle, FaQrcode } from "react-icons/fa6";
 import { AbstractProvider } from "ethers";
-import { lineaTestnet } from "viem/chains";
+import { lineaTestnet, localhost } from "viem/chains";
 
 interface JoinTeamProps {
   show?: boolean,
@@ -36,7 +37,7 @@ const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
   }
 
   const joinTeam = async (type: number) => {
-
+    console.log('join-team', type);
     // connect the team
     dispatch(setJoined(true));
     if (!isConnected) {
@@ -46,8 +47,11 @@ const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
       console.log(result);
     }
     
-    if (chain !== lineaTestnet && switchNetworkAsync) {
-      await switchNetworkAsync(lineaTestnet.id);
+    // if (chain !== lineaTestnet && switchNetworkAsync) {
+    //   await switchNetworkAsync(lineaTestnet.id);
+    // }
+    if (chain !== localhost && switchNetworkAsync) {
+      await switchNetworkAsync(localhost.id);
     }
 
     dispatch(setColor(props.colour));
@@ -63,14 +67,12 @@ const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
         {isConnected && <div className="text-xs">Connected: {address}</div>}
         <p>{desc}</p>
         <div className="modal-action">
-          {/* if there is a button in form, it will close the modal */}
-          {/* {props.moves.length <= 20 && <button className="btn bg-primary" onClick={joinTeam}>Join Us!</button>} */}
           {props.moves.length <= 20 && !isConnected && <div className="join gap-1">
             <button className="btn join-item w-16" onClick={e => joinTeam(1)}><img src="/images/metamask.png" /></button>
             <button className="btn join-item w-16" onClick={e => joinTeam(2)}><img src="/images/walletconnect.png" /></button>
             <button className="btn join-item" onClick={e => joinTeam(0)}><FaGoogle /></button>
           </div>}
-          {props.moves.length <= 20 && isConnected && <button className="btn bg-primary" onClick={joinTeam}>Join Us!</button>}
+          {props.moves.length <= 20 && isConnected && <button className="btn bg-primary" onClick={e => joinTeam(0)}>Join Us!</button>}
           {props.moves.length <= 20 && <button className="btn" onClick={dismiss}>Maybe Later</button>}
           {props.moves.length > 20 && <button className="btn" onClick={dismiss}>Ok!</button>}
         </div>

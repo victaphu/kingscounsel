@@ -1,4 +1,4 @@
-import { Colors, FigureData, FiguresMap, Move, Nft, NftDetails, Player } from "@/app/common/types";
+import { Colors, FigureData, Figures, FiguresMap, Move, Nft, NftDetails, Player } from "@/app/common/types";
 import { initialFEN, initialFigures } from "@/app/common/initialPos";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
@@ -72,6 +72,12 @@ export const gameSlice = createSlice({
 			state.figures = action.payload.boardState;
 			state.playHistory = action.payload.moves;
 		},
+		setFigures: (state, action: PayloadAction<{[key: string] : FigureData}>) => {
+			state.figures = action.payload;
+		},
+		setPlayHistory: (state, action: PayloadAction<Array<Move>>) => {
+			state.playHistory = action.payload;
+		},
 		setJoined: (state, action: PayloadAction<boolean>) => {
 			state.joined = action.payload;
 		},
@@ -109,6 +115,12 @@ export const gameSlice = createSlice({
 		},
 		setColor: (state, action: PayloadAction<Colors>) => {
 			state.color = action.payload;
+		},
+		setTimer: (state, action: PayloadAction<number>) => {
+			state.timer = action.payload;
+		},
+		setPiecesCaptured: (state, action: PayloadAction<FigureData[]>) => {
+			state.piecesEaten = action.payload;
 		},
 		changeFigurePosition: (state, action: PayloadAction<{ figure: FigureData, x: number, y: number, captured?: boolean, figureOnCell: FigureData | undefined }>) => {
 			let config = convertFromFEN(state.fenState);
@@ -235,6 +247,10 @@ export const { setColor,
 	setReplayMode,
 	setNftDetails,
 	setSelectedNft,
+	setTimer,
+	setPlayHistory,
+	setFigures,
+	setPiecesCaptured
 } = gameSlice.actions;
 
 export const selectFigures = (state: RootState) => state.game.figures;
