@@ -41,7 +41,7 @@ const PlayerViewer: React.FC<PlayerProps> = (props: PlayerProps) => {
     abi: fkcController.abi,
     address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
     functionName: "getCurrentGameState",
-    chainId: 59144,
+    chainId: 1337,
   })
 
   const players: Array<Player> | undefined = (props.isWhite ? data?.whitePlayers : data?.blackPlayers)?.map(e => ({ wallet: e }));

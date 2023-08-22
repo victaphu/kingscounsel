@@ -27,7 +27,7 @@ const Integrator: React.FC = () => {
 
   const [reload, setReload] = useState(false);
   useContractEvent({
-    chainId: 59144,
+    chainId: 1337,
     address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER}`,
     abi: fkcController.abi,
     eventName: "MoveProposed",
@@ -54,7 +54,7 @@ const Integrator: React.FC = () => {
   } = useContractReads({
     contracts: [
       {
-        chainId: 59144,
+        chainId: 1337,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
         abi: [{
           "inputs": [],
@@ -104,7 +104,7 @@ const Integrator: React.FC = () => {
         functionName: 'getCurrentGameState'
       },
       {
-        chainId: 59144,
+        chainId: 1337,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
         abi: [{
           "inputs": [],
@@ -164,7 +164,7 @@ const Integrator: React.FC = () => {
         functionName: 'getCurrentGame'
       },
       {
-        chainId: 59144,
+        chainId: 1337,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
         abi: [{
           "anonymous": false,
