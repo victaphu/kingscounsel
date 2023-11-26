@@ -136,6 +136,23 @@ const createWallets = async (provider) => {
   return { b1, b2, b3, w1, w2, w3, owner }
 }
 
+const requestMove = async (wallet, currentStep, knowledge, config, player, contract) => {
+  const c1 = jsChessEngine.aiMove(config, knowledge);
+  console.log(' move chosen is', player, c1);
+  const m1 = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(Object.entries(c1)[0].join("")));
+
+  try {
+    let res;
+    res = await contract.connect(wallet).requestMove(m1, currentStep);
+    await res.wait();
+
+    return m1;
+  }
+  catch (e) {
+    console.log('error', e);
+  }
+}
+
 const chooseMoves = async (wallets, contract, gameState, currentStep, isBlack) => {
   console.log('Making moves for', isBlack ? "Black players" : "White players", "current step", currentStep);
   const knowledge = isBlack ? 1 : 3;
@@ -144,19 +161,10 @@ const chooseMoves = async (wallets, contract, gameState, currentStep, isBlack) =
   console.log(' current state is', fen, currentStep);
   // console.log(getJSONfromFEN(fen));
   const config = getJSONfromFEN(fen);
-  // wallet 1 - smart
-  const c1 = jsChessEngine.aiMove(config, knowledge);
-  console.log(' move chosen is p1', c1);
-  const m1 = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(Object.entries(c1)[0].join("")));
-  let res = await contract.connect(wallets[0]).requestMove(m1, currentStep);
-  await res.wait();
 
-  // wallet 2 - dumb
-  const c2 = jsChessEngine.aiMove(config, knowledge - 1);
-  console.log(' move chosen is p2', c2);
-  const m2 = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(Object.entries(c2)[0].join("")));
-  res = await contract.connect(wallets[1]).requestMove(m2, currentStep);
-  await res.wait();
+  const m1 = requestMove(wallets[0], currentStep, knowledge, config, 'p1', contract);
+
+  const m2 = requestMove(wallets[1], currentStep, knowledge - 1, config, 'p2', contract);
 
   // wallet 3 - random chooser
   const m3 = Math.random() > 0.5 ? m2 : m1;
@@ -167,6 +175,16 @@ const chooseMoves = async (wallets, contract, gameState, currentStep, isBlack) =
 
 const processor = async (event, context) => {
   const provider = new ethers.providers.JsonRpcProvider(process.env.PROVIDER);
+  // provider.getFeeData = async () => {
+  //   return {
+  //     lastBaseFeePerGas: ethers.utils.parseUnits('0.000000007', 'gwei'),
+  //     maxFeePerGas: ethers.utils.parseUnits('2', 'gwei'),
+  //     maxPriorityFeePerGas: ethers.utils.parseUnits('2', 'gwei'),
+  //     gasPrice: ethers.utils.parseUnits('2.2', 'gwei')
+  //   }
+  // }
+  // console.log(Object.entries(await provider.getFeeData()).map(e=>console.log(e[0], ethers.utils.formatUnits(e[1], "gwei"))));
+  // return;
   const { b1, b2, b3, w1, w2, w3, owner } = await createWallets(provider);
 
   console.log(`Bot Players starting up ${new Date()}`);
@@ -214,5 +232,6 @@ const processor = async (event, context) => {
   }
 };
 
+// processor()
 module.exports.run = processor
 
