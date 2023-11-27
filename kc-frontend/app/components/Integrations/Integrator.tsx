@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from "react";
-import { useContractEvent, useContractReads } from 'wagmi'
+import { useChainId, useContractEvent, useContractReads } from 'wagmi'
 import fkcController from '@/app/abi/FKCController.json';
 import { useAppDispatch } from "@/app/redux/hooks";
 import { convertMoveToPosition, findPiece, hexToAscii, initialiseBoardFromFEN, isPieceAtPosition, makeMoves } from "@/app/common/lib";
@@ -24,10 +24,11 @@ import { createGame } from "@/app/common/engine";
 
 const Integrator: React.FC = () => {
   const dispatch = useAppDispatch();
+  const chainId = useChainId();
 
   const [reload, setReload] = useState(false);
   useContractEvent({
-    chainId: 1337,
+    chainId: chainId,
     address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER}`,
     abi: fkcController.abi,
     eventName: "MoveProposed",
@@ -43,7 +44,7 @@ const Integrator: React.FC = () => {
     }
   });
 
-  console.log(reload, 'reloading');
+  console.log(reload, chainId, 'reloading', process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER);
 
   const { data, isError, isLoading }: {
     data: [
@@ -54,7 +55,7 @@ const Integrator: React.FC = () => {
   } = useContractReads({
     contracts: [
       {
-        chainId: 1337,
+        chainId,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
         abi: [{
           "inputs": [],
@@ -104,7 +105,7 @@ const Integrator: React.FC = () => {
         functionName: 'getCurrentGameState'
       },
       {
-        chainId: 1337,
+        chainId,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
         abi: [{
           "inputs": [],
@@ -164,7 +165,7 @@ const Integrator: React.FC = () => {
         functionName: 'getCurrentGame'
       },
       {
-        chainId: 1337,
+        chainId,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
         abi: [{
           "anonymous": false,

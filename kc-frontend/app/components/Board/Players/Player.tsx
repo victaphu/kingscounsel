@@ -12,7 +12,7 @@ import JoinedTeamToolbar from "./JoinedTeamToolbar";
 import NftSelector from "./NftSelector";
 
 import fkcController from "@/app/abi/FKCController.json";
-import { useContractRead } from "wagmi";
+import { useChainId, useContractRead } from "wagmi";
 import ClientOnly from "../../ClientOnly/ClientOnly";
 
 interface PlayerProps {
@@ -36,12 +36,13 @@ interface GameState {
 
 const PlayerViewer: React.FC<PlayerProps> = (props: PlayerProps) => {
   const [open, setOpen] = useState(false);
+  const chainId = useChainId();
 
   const { data, isLoading, isSuccess }: { data: GameState | undefined, isLoading: boolean, isSuccess: boolean } = useContractRead({
     abi: fkcController.abi,
     address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
     functionName: "getCurrentGameState",
-    chainId: 1337,
+    chainId: chainId,
   })
 
   const players: Array<Player> | undefined = (props.isWhite ? data?.whitePlayers : data?.blackPlayers)?.map(e => ({ wallet: e }));
@@ -98,7 +99,7 @@ const TimerRender: React.FC<PlayerProps> = (props: PlayerProps) => {
         seconds = 0;
         minutes = 0;
       }
-      api.stop();
+      // api.stop();
     }
     else if (currentPlayer === (props.isWhite ? Colors.WHITE : Colors.BLACK)) {
       const delta = calcTimeDelta(timer);

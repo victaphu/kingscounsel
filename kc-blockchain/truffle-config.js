@@ -21,6 +21,15 @@ module.exports = {
         return new HDWalletProvider({ privateKeys: [PRIVATE_KEY], providerOrUrl: `https://linea-mainnet.infura.io/v3/${INFURA_API_KEY}`})
       },
       network_id: "59144",
+    },
+    polygon_mainnet: {
+      provider: () => { 
+        return new HDWalletProvider({ privateKeys: [PRIVATE_KEY], providerOrUrl: `https://polygon-mainnet.infura.io/v3/${INFURA_API_KEY}`})
+      },
+      network_id: "137",
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true
     }
   },
   api_keys: {

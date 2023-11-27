@@ -9,6 +9,16 @@ Kings Counsel is a multiplayer chess game that allows players to join a game of 
 
 I deployed the two smart contracts and verified them. FKCController manages the game and FKCGame is the game state and game NFT that's minted once a game completes.
 
+Polygon Matic Configuration
+FKCController
+0x37f0e411b5B342D3Db5Bd72814FC649CaBa5D474
+https://polygonscan.com/address/0x37f0e411b5B342D3Db5Bd72814FC649CaBa5D474
+
+FKCGame
+0x661726CB4A8c68DA4034c579fD346EAE461f4722
+https://polygonscan.com/address/0x661726cb4a8c68da4034c579fd346eae461f4722
+
+
 
 FKCController
 https://lineascan.build/address/0x981d90e7b2144C55921A7B68A8aC85C655FfCD0a

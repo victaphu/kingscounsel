@@ -9,11 +9,11 @@ import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
 import { CHAIN_NAMESPACES, WALLET_ADAPTERS } from "@web3auth/base";
-import { polygonMumbai, lineaTestnet, localhost } from "viem/chains";
+import { polygonMumbai, lineaTestnet, localhost, polygon } from "viem/chains";
 import { linea } from "wagmi/chains";
 // Configure chains & providers with the Alchemy provider.
 // Popular providers are Alchemy (alchemy.com), Infura (infura.io), Quicknode (quicknode.com) etc.
-const { chains, publicClient, webSocketPublicClient } = configureChains([linea], [infuraProvider({apiKey: "24b7efabb5334c14a28d0e727acb3b69"}), publicProvider()]);
+const { chains, publicClient, webSocketPublicClient } = configureChains([polygon], [infuraProvider({apiKey: "24b7efabb5334c14a28d0e727acb3b69"}), publicProvider()]);
 // Instantiating Web3Auth
 
 const chainConfig = {
