@@ -55,7 +55,7 @@ export default function NftLoader({ params }: { params: { nftId: string } }) {
       },
       {
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCGAME!}`,
-        abi: [  {
+        abi: [{
           "inputs": [
             {
               "internalType": "uint256",
@@ -113,37 +113,42 @@ export default function NftLoader({ params }: { params: { nftId: string } }) {
       {
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
         abi: [{
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "currentToken",
-              "type": "uint256"
-            }
-          ],
-          "name": "NewGameCreated",
-          "type": "event"
+            "inputs": [],
+            "name": "currentToken",
+            "outputs": [
+              {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
         }],
         functionName: 'currentToken'
       }
     ],
-    watch: true
+    watch: false
   });
+
+  console.log('NFTs', data, isSuccess, isError);
 
   useEffect(() => {
 
     if (!data || !isSuccess) {
-      return
+      return;
     }
-    console.log(data);
+    if (!data[3].result) {
+      return;
+    }
+    console.log('not working?', data);
     dispatch(setNftDetails({
       name: data[1].result! as string,
       desc: data[0].result! as string,
       total: +(data[3].result as BigNumberish).toString()
     }));
 
-    const gameState = data[2].result as { movesHistory: Array<string>, currentGameState: string, gameCompleted: boolean, result: BigNumberish };    
+    const gameState = data[2].result as { movesHistory: Array<string>, currentGameState: string, gameCompleted: boolean, result: BigNumberish };
     console.log(initialiseBoardFromFEN(initialFEN));
     console.log(hexToAscii(gameState?.movesHistory!));
 

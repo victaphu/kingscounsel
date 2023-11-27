@@ -168,18 +168,18 @@ const Integrator: React.FC = () => {
         chainId,
         address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
         abi: [{
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "currentToken",
-              "type": "uint256"
-            }
-          ],
-          "name": "NewGameCreated",
-          "type": "event"
-        }],
+            "inputs": [],
+            "name": "currentToken",
+            "outputs": [
+              {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },],
         functionName: 'currentToken'
       }
     ],
@@ -187,11 +187,12 @@ const Integrator: React.FC = () => {
   });
 
   useEffect(() => {
+    console.log('Data', data);
     if (!data || isError || isLoading) {
+      
       return;
     }
 
-    console.log('Data', data);
     const game = data[1].result;
     const gameState = data[0].result;
     console.log(game, gameState);

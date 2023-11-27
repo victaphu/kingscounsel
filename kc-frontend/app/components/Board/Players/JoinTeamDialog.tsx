@@ -25,12 +25,12 @@ const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
   console.log("Is connected", isConnected, connector, address);
 
   let desc = `The ${props.colour} Team welcomes your contribution! Join us in our epic battle against the ${getOtherColor(props.colour)} Team! `
-  if (props.moves.length <= 20) {
-    desc += `As the game has progressed quite a bit, you can buy in to the game by paying ${Math.ceil(props.moves.length / 2)} AC tokens.`
-  }
-  else {
-    desc = `Join us in the next game! The current game has progressed past 10 moves each side.`
-  }
+  // if (props.moves.length <= 20) {
+  desc += `As the game has progressed quite a bit, you can buy in to the game by paying ${Math.ceil(props.moves.length / 2)} AC tokens.`
+  // }
+  // else {
+  //   desc = `Join us in the next game! The current game has progressed past 10 moves each side.`
+  // }
 
   const dismiss = () => {
     dispatch(setShowJoin(false));
@@ -67,14 +67,14 @@ const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
         {isConnected && <div className="text-xs">Connected: {address}</div>}
         <p>{desc}</p>
         <div className="modal-action">
-          {props.moves.length <= 20 && !isConnected && <div className="join gap-1">
+          {!isConnected && <div className="join gap-1">
             <button className="btn join-item w-16" onClick={e => joinTeam(1)}><img src="/images/metamask.png" /></button>
             <button className="btn join-item w-16" onClick={e => joinTeam(2)}><img src="/images/walletconnect.png" /></button>
             <button className="btn join-item" onClick={e => joinTeam(0)}><FaGoogle /></button>
           </div>}
-          {props.moves.length <= 20 && isConnected && <button className="btn bg-primary" onClick={e => joinTeam(0)}>Join Us!</button>}
-          {props.moves.length <= 20 && <button className="btn" onClick={dismiss}>Maybe Later</button>}
-          {props.moves.length > 20 && <button className="btn" onClick={dismiss}>Ok!</button>}
+          {isConnected && <button className="btn bg-primary" onClick={e => joinTeam(0)}>Join Us!</button>}
+          {<button className="btn" onClick={dismiss}>Maybe Later</button>}
+          {/* {props.moves.length > 20 && <button className="btn" onClick={dismiss}>Ok!</button>} */}
         </div>
       </div>
     </div>
