@@ -2,10 +2,11 @@ const { ethers } = require("ethers");
 const contractObj = require("./abi/FKCController.json");
 const gameObj = require("./abi/FKCGame.json");
 const jsChessEngine = require('js-chess-engine');
+const { default: axios } = require("axios");
 
 if (process.env.NODE_ENV != "production") {
   require("dotenv").config({
-    path: '.env.local', override: true
+    path: '.env.polygon', override: true
   })
 }
 
@@ -14,6 +15,39 @@ const ROWS = ['1', '2', '3', '4', '5', '6', '7', '8']
 const COLORS = {
   BLACK: 'black',
   WHITE: 'white',
+}
+
+async function getGas(multiplier = 1) {
+  let maxFeePerGas = ethers.utils.parseUnits("180", "gwei") // fallback to 40 gwei
+  let maxPriorityFeePerGas = ethers.utils.parseUnits("45", "gwei") // fallback to 40 gwei
+  try {
+      let isProd = true; //process.env.STAGE === "prod";
+      console.log('staging for gas estimate is:', process.env.STAGE);
+      const { data } = await axios({
+          method: 'get',
+          url: isProd
+              ? 'https://gasstation.polygon.technology/v2'
+              : 'https://gasstation-testnet.polygon.technology/v2',
+      })
+      maxFeePerGas = ethers.utils.parseUnits(
+          Math.ceil(data.fast.maxFee) + '',
+          'gwei'
+      ).mul(multiplier)
+      maxPriorityFeePerGas = ethers.utils.parseUnits(
+          Math.ceil(data.fast.maxPriorityFee) + '',
+          'gwei'
+      ).mul(multiplier)
+  } catch (e) {
+    console.log('error estimating gas', e);
+      // ignore
+  }
+
+  console.log('gas setting', maxFeePerGas.toString(), maxPriorityFeePerGas.toString());
+
+  return {
+      maxFeePerGas,
+      maxPriorityFeePerGas
+  }
 }
 
 function isLocationValid(location) {
@@ -90,7 +124,8 @@ const registerPlayers = async (wallets, contract, currentGame, isBlack) => {
     // console.log("Token", token);
     if ((token).lt(currentGame)) {
       console.log(` registering ${e.address} as ${isBlack ? "BLACK" : "WHITE"} player`)
-      const res = await contract.connect(e).register(isBlack);
+      const res = await contract.connect(e).register(isBlack, await getGas());
+      console.log('transaction details', res);
       await res.wait();
     }
     else {
@@ -117,7 +152,7 @@ const makeNextMove = async (contract, nextMove, owner, gameContract) => {
   const result = newState.checkMate ? (newState.turn === 'black' ? 2 : 1) : 0;
   console.log(' newFEN is', newFEN, 'and result is', result);
 
-  const res = await (contract.connect(owner)).makeNextMove(newFEN, result);
+  const res = await (contract.connect(owner)).makeNextMove(newFEN, result, await getGas());
   await res.wait();
   console.log(' processing is completed');
 }
@@ -125,15 +160,15 @@ const makeNextMove = async (contract, nextMove, owner, gameContract) => {
 const createWallets = async (provider) => {
 
   const b1 = new ethers.Wallet(process.env.BLACK_PLAYER_1, provider);
-  const b2 = new ethers.Wallet(process.env.BLACK_PLAYER_2, provider);
-  const b3 = new ethers.Wallet(process.env.BLACK_PLAYER_3, provider);
+  // const b2 = new ethers.Wallet(process.env.BLACK_PLAYER_2, provider);
+  // const b3 = new ethers.Wallet(process.env.BLACK_PLAYER_3, provider);
 
   const w1 = new ethers.Wallet(process.env.WHITE_PLAYER_1, provider);
-  const w2 = new ethers.Wallet(process.env.WHITE_PLAYER_2, provider);
-  const w3 = new ethers.Wallet(process.env.WHITE_PLAYER_3, provider);
+  // const w2 = new ethers.Wallet(process.env.WHITE_PLAYER_2, provider);
+  // const w3 = new ethers.Wallet(process.env.WHITE_PLAYER_3, provider);
   const owner = new ethers.Wallet(process.env.OWNER, provider);
 
-  return { b1, b2, b3, w1, w2, w3, owner }
+  return { b1, w1, owner }
 }
 
 const requestMove = async (wallet, currentStep, knowledge, config, player, contract) => {
@@ -143,7 +178,7 @@ const requestMove = async (wallet, currentStep, knowledge, config, player, contr
 
   try {
     let res;
-    res = await contract.connect(wallet).requestMove(m1, currentStep);
+    res = await contract.connect(wallet).requestMove(m1, currentStep, await getGas());
     await res.wait();
 
     return m1;
@@ -162,15 +197,15 @@ const chooseMoves = async (wallets, contract, gameState, currentStep, isBlack) =
   // console.log(getJSONfromFEN(fen));
   const config = getJSONfromFEN(fen);
 
-  const m1 = requestMove(wallets[0], currentStep, knowledge, config, 'p1', contract);
+  const m1 = await requestMove(wallets[0], currentStep, knowledge, config, 'p1', contract);
 
-  const m2 = requestMove(wallets[1], currentStep, knowledge - 1, config, 'p2', contract);
+  // const m2 = requestMove(wallets[1], currentStep, knowledge - 1, config, 'p2', contract);
 
   // wallet 3 - random chooser
-  const m3 = Math.random() > 0.5 ? m2 : m1;
-  console.log(m3 === m2 ? ' move p2 was chosen' : ' move p1 was chosen');
-  res = await contract.connect(wallets[2]).requestMove(m3, currentStep);
-  await res.wait();
+  // const m3 = Math.random() > 0.5 ? m2 : m1;
+  // console.log(m3 === m2 ? ' move p2 was chosen' : ' move p1 was chosen');
+  // res = await contract.connect(wallets[2]).requestMove(m3, currentStep);
+  // await res.wait();
 }
 
 const processor = async (event, context) => {
@@ -185,7 +220,7 @@ const processor = async (event, context) => {
   // }
   // console.log(Object.entries(await provider.getFeeData()).map(e=>console.log(e[0], ethers.utils.formatUnits(e[1], "gwei"))));
   // return;
-  const { b1, b2, b3, w1, w2, w3, owner } = await createWallets(provider);
+  const { b1, w1, owner } = await createWallets(provider);
 
   console.log(`Bot Players starting up ${new Date()}`);
   const contract = new ethers.Contract(process.env.CONTRACT_FKCCONTROLLER, contractObj.abi, provider);
@@ -218,11 +253,11 @@ const processor = async (event, context) => {
 
   try {
     if (game.isBlackToPlay) {
-      await registerPlayers([b1, b2, b3], contract, currentGame, true);
-      await chooseMoves([b1, b2, b3], contract, gameState, game.currentStep, true);
+      await registerPlayers([b1], contract, currentGame, true);
+      await chooseMoves([b1], contract, gameState, game.currentStep, true);
     } else {
-      await registerPlayers([w1, w2, w3], contract, currentGame, false);
-      await chooseMoves([w1, w2, w3], contract, gameState, game.currentStep, false);
+      await registerPlayers([w1], contract, currentGame, false);
+      await chooseMoves([w1], contract, gameState, game.currentStep, false);
     }
     console.log(' Processing completed');
   }

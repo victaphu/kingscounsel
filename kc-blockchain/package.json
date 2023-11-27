@@ -10,6 +10,8 @@
     "stop:ganache": "docker stop kc-ganache && docker container remove kc-ganache",
     "deploy:mainnet": "truffle migrate --network linea_mainnet",
     "simulate:mainnet": "truffle migrate --dry-run --network linea_mainnet",
+    "deploy:mainnet-poly": "truffle migrate --network polygon_mainnet",
+    "simulate:mainnet-poly": "truffle migrate --dry-run --network polygon_mainnet",
     "verify:mainnet": "truffle run verify FKCController.sol FKCGame.sol --network linea_mainnet"
   },
   "dependencies": {

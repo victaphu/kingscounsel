@@ -10,8 +10,8 @@ provider:
 functions:
   botsPlayer:
     handler: index.run
-    timeout: 60
+    timeout: 90
     events:
       # Invoke Lambda function every 2nd minute from Mon-Fri
-      - schedule: rate(1 minute)
+      - schedule: rate(2 minutes)
 
