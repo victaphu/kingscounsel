@@ -2,7 +2,7 @@
 import React from "react";
 import styles from "./Board.module.scss";
 import { BoardNumberByLetter, Colors } from "@/app/common/types";
-import classNames from "classnames/bind";
+import classNames from "classnames";
 
 interface CellProps {
   color: Colors;

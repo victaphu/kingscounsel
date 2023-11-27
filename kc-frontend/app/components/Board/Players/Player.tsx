@@ -111,22 +111,22 @@ const TimerRender: React.FC<PlayerProps> = (props: PlayerProps) => {
       <ClientOnly>
         <div className="lg:flex lg:flex-col p-2 bg-neutral rounded-box text-neutral-content lg:visible hidden">
           <span className="countdown font-mono text-lg">
-            <span style={{ "--value": minutes }}></span>
+            <span style={{ "--value": minutes } as React.CSSProperties}></span>
           </span>
           <span className="text-xs">min</span>
         </div>
         <div className="lg:flex lg:flex-col p-2 bg-neutral rounded-box text-neutral-content lg:visible hidden">
           <span className="countdown font-mono text-lg">
-            <span style={{ "--value": seconds }}></span>
+            <span style={{ "--value": seconds } as React.CSSProperties}></span>
           </span>
           <span className="text-xs">sec</span>
         </div>
         <div className="flex flex-col p-2 bg-neutral rounded-box text-neutral-content lg:hidden items-end">
           <span className="countdown font-mono text-sm">
-            <span style={{ "--value": minutes }} className="pr-1"></span>m
+            <span style={{ "--value": minutes } as React.CSSProperties} className="pr-1"></span>m
           </span>
           <span className="countdown font-mono text-sm">
-            <span style={{ "--value": seconds }} className="pr-1"></span>s
+            <span style={{ "--value": seconds } as React.CSSProperties} className="pr-1"></span>s
           </span>
         </div>
       </ClientOnly>
