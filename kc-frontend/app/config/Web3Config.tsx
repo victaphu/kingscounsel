@@ -58,7 +58,7 @@ const openloginAdapterInstance = new OpenloginAdapter({
 web3AuthInstance.configureAdapter(openloginAdapterInstance);
 
 const wagmiConfig = createConfig({
-  autoConnect: false,
+  autoConnect: true,
   connectors: [
     new Web3AuthConnector({
       chains,

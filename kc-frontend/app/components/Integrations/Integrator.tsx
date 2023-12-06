@@ -1,14 +1,13 @@
 "use client"
 import React, { useEffect, useState } from "react";
-import { useChainId, useContractEvent, useContractReads } from 'wagmi'
+import { readContracts, useAccount, useChainId, useContractEvent } from 'wagmi'
 import fkcController from '@/app/abi/FKCController.json';
 import { useAppDispatch } from "@/app/redux/hooks";
-import { convertMoveToPosition, findPiece, hexToAscii, initialiseBoardFromFEN, isPieceAtPosition, makeMoves } from "@/app/common/lib";
-import { proposeMove, setColor, setCurrentPlayer, setFigures, setNftDetails, setPiecesCaptured, setPlayHistory, setTimer } from "@/app/redux/gameSlice";
-import { Colors, FigureData, Figures, FiguresMap, Move } from "@/app/common/types";
-import { BigNumberish, toNumber } from "ethers";
+import { hexToAscii, initialiseBoardFromFEN, makeMoves } from "@/app/common/lib";
+import { proposeMove, setCurrentPlayer, setFigures, setNftDetails, setPiecesCaptured, setPlayHistory, setTimer } from "@/app/redux/gameSlice";
+import { Colors, ContractGameState, ContractMovesHistory } from "@/app/common/types";
+import { toNumber } from "ethers";
 import { initialFEN } from "@/app/common/initialPos";
-import { createGame } from "@/app/common/engine";
 
 /**
  * Integration to the blockchain
@@ -22,152 +21,153 @@ import { createGame } from "@/app/common/engine";
  * I'd put everything in a bunch of hooks if I could do this again!
  */
 
+/**
+ * Player Todo: 
+ * 1. listen for event when user registers, update the player list 
+ * 2. check if the user has connected, if the user has connected update connect state
+ * 
+ * Moves Todo:
+ * 1. Show move proposal on the website
+ * 2. Integrate with lichess to show best score
+ * 3. Indicate which move was proposed / voted on by the user
+ */
+
 const Integrator: React.FC = () => {
   const dispatch = useAppDispatch();
   const chainId = useChainId();
+  const { connector, isConnected, address } = useAccount();
 
   const [reload, setReload] = useState(false);
   useContractEvent({
     chainId: chainId,
     address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER}`,
     abi: fkcController.abi,
-    eventName: "MoveProposed",
+    eventName: "MoveMade",
     listener(log) {
       console.log(log);
       setReload((e => !e));
-
-      // const start = move[0];
-      // const from = convertMoveToPosition(start[0] + start[1]);
-      // const to = convertMoveToPosition(start[2] + start[3]);
-      // const figure = findPiece(figures, from.x, from.y)!;
-      // const figureOnCell = findPiece(figures, to.x, to.y);
     }
   });
 
   console.log(reload, chainId, 'reloading', process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER);
 
-  const { data, isError, isLoading }: {
-    data: [
-      { result: { movesHistory: Array<string>, currentGameState: string, gameCompleted: boolean, result: BigNumberish } | undefined },
-      { result: { isBlackToPlay: boolean, nextPlayTimer: BigNumberish, proposedMoves: Array<string> } | undefined },
-      { result: BigNumberish | undefined }
-    ] | undefined, isError: boolean, isLoading: boolean
-  } = useContractReads({
-    contracts: [
-      {
-        chainId,
-        address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
-        abi: [{
-          "inputs": [],
-          "name": "getCurrentGameState",
-          "outputs": [
-            {
-              "components": [
-                {
-                  "internalType": "address[]",
-                  "name": "whitePlayers",
-                  "type": "address[]"
-                },
-                {
-                  "internalType": "address[]",
-                  "name": "blackPlayers",
-                  "type": "address[]"
-                },
-                {
-                  "internalType": "string",
-                  "name": "currentGameState",
-                  "type": "string"
-                },
-                {
-                  "internalType": "bytes4[]",
-                  "name": "movesHistory",
-                  "type": "bytes4[]"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "gameCompleted",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "uint8",
-                  "name": "result",
-                  "type": "uint8"
-                }
-              ],
-              "internalType": "struct IFKCGame.GameState",
-              "name": "",
-              "type": "tuple"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        }],
-        functionName: 'getCurrentGameState'
-      },
-      {
-        chainId,
-        address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
-        abi: [{
-          "inputs": [],
-          "name": "getCurrentGame",
-          "outputs": [
-            {
-              "components": [
-                {
-                  "internalType": "uint256",
-                  "name": "gameId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "nextPlayTimer",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "isBlackToPlay",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "totalTokens",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bytes4[]",
-                  "name": "proposedMoves",
-                  "type": "bytes4[]"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "proposeResign",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "proposeDraw",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "currentStep",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct FKCController.Game",
-              "name": "",
-              "type": "tuple"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        }],
-        functionName: 'getCurrentGame'
-      },
-      {
-        chainId,
-        address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
-        abi: [{
+  async function readData() {
+    const data = await readContracts({
+      contracts: [
+        {
+          chainId,
+          address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
+          abi: [{
+            "inputs": [],
+            "name": "getCurrentGameState",
+            "outputs": [
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "whitePlayers",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "blackPlayers",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "currentGameState",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "bytes4[]",
+                    "name": "movesHistory",
+                    "type": "bytes4[]"
+                  },
+                  {
+                    "internalType": "bool",
+                    "name": "gameCompleted",
+                    "type": "bool"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "result",
+                    "type": "uint8"
+                  }
+                ],
+                "internalType": "struct IFKCGame.GameState",
+                "name": "",
+                "type": "tuple"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          }],
+          functionName: 'getCurrentGameState'
+        },
+        {
+          chainId,
+          address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
+          abi: [{
+            "inputs": [],
+            "name": "getCurrentGame",
+            "outputs": [
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "gameId",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "nextPlayTimer",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "bool",
+                    "name": "isBlackToPlay",
+                    "type": "bool"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "totalTokens",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "bytes4[]",
+                    "name": "proposedMoves",
+                    "type": "bytes4[]"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "proposeResign",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "proposeDraw",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "currentStep",
+                    "type": "uint256"
+                  }
+                ],
+                "internalType": "struct FKCController.Game",
+                "name": "",
+                "type": "tuple"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          }],
+          functionName: 'getCurrentGame'
+        },
+        {
+          chainId,
+          address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
+          abi: [{
             "inputs": [],
             "name": "currentToken",
             "outputs": [
@@ -179,27 +179,18 @@ const Integrator: React.FC = () => {
             ],
             "stateMutability": "view",
             "type": "function"
-        },],
-        functionName: 'currentToken'
-      }
-    ],
-    watch: true
-  });
-
-  useEffect(() => {
-    console.log('Data', data);
-    if (!data || isError || isLoading) {
-      
-      return;
-    }
-
-    const game = data[1].result;
-    const gameState = data[0].result;
+          },],
+          functionName: 'currentToken'
+        }
+      ]
+    });
+    const game = data[1].result as ContractGameState;
+    const gameState = data[0].result as ContractMovesHistory;
     console.log(game, gameState);
     dispatch(setCurrentPlayer(game?.isBlackToPlay ? Colors.BLACK : Colors.WHITE))
     dispatch(setTimer(toNumber(game?.nextPlayTimer!) * 1000));
     dispatch(setFigures(initialiseBoardFromFEN(gameState?.currentGameState!)));
-    
+
     console.log(initialiseBoardFromFEN(initialFEN));
     console.log(hexToAscii(gameState?.movesHistory!));
 
@@ -219,8 +210,11 @@ const Integrator: React.FC = () => {
         dispatch(proposeMove(m));
       })
     }
+  }
 
-  }, [data])
+  useEffect(() => {
+    readData();
+  }, [reload]);
 
   return (<></>)
 }
