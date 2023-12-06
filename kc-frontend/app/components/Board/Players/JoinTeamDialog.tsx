@@ -1,5 +1,5 @@
 "use client"
-import React from "react";
+import React, { useState } from "react";
 import { Colors, Move, Player } from "@/app/common/types";
 import { getOtherColor, getPlayerIcon } from "@/app/common/lib";
 import { useAppDispatch } from "@/app/redux/hooks";
@@ -8,12 +8,23 @@ import { useAccount, useConnect, useDisconnect, useNetwork, useSwitchNetwork } f
 import { FaGoogle, FaQrcode } from "react-icons/fa6";
 import { AbstractProvider } from "ethers";
 import { lineaTestnet, localhost } from "viem/chains";
+import { polygon } from "wagmi/chains";
 
 interface JoinTeamProps {
   show?: boolean,
   colour: Colors,
   moves: Array<Move>
 }
+
+/**
+ * Todo:
+ * - When user clicks join team, 
+ * - Check if user connected wallet; connect wallet if not
+ * - Check the chain is correct, set to correct chain
+ * - trigger smart contract call that wil make user join the team
+ * - consider collecting entrance fee at this point
+ * - Update the team the user is on
+ */
 
 const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
   const dispatch = useAppDispatch();
@@ -22,15 +33,17 @@ const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
   const { chains, pendingChainId, switchNetworkAsync } = useSwitchNetwork();
   const { chain } = useNetwork();
 
-  console.log("Is connected", isConnected, connector, address);
+  const [joining, setJoining] = useState(false);
+
+  console.log("Is connected", isConnected, connector, address, chain, switchNetworkAsync);
 
   let desc = `The ${props.colour} Team welcomes your contribution! Join us in our epic battle against the ${getOtherColor(props.colour)} Team! `
-  if (props.moves.length <= 20) {
-    desc += `As the game has progressed quite a bit, you can buy in to the game by paying ${Math.ceil(props.moves.length / 2)} AC tokens.`
-  }
-  else {
-    desc = `Join us in the next game! The current game has progressed past 10 moves each side.`
-  }
+  // if (props.moves.length <= 20) {
+  desc += `As the game has progressed quite a bit, you can buy in to the game by paying ${Math.ceil(props.moves.length / 2)} AC tokens.`
+  // }
+  // else {
+  //   desc = `Join us in the next game! The current game has progressed past 10 moves each side.`
+  // }
 
   const dismiss = () => {
     dispatch(setShowJoin(false));
@@ -39,21 +52,24 @@ const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
   const joinTeam = async (type: number) => {
     console.log('join-team', type);
     // connect the team
-    dispatch(setJoined(true));
+    let result;
     if (!isConnected) {
-      const provider: AbstractProvider = await connectors[type].getProvider();
+      // const provider: AbstractProvider = await connectors[type].getProvider();
       // connect first then join the team
-      const result = await connectAsync({ connector: connectors[type] });
+      result = await connectAsync({ connector: connectors[type] });
       console.log(result);
     }
     
     // if (chain !== lineaTestnet && switchNetworkAsync) {
     //   await switchNetworkAsync(lineaTestnet.id);
     // }
-    if (chain !== localhost && switchNetworkAsync) {
-      await switchNetworkAsync(localhost.id);
+    console.log("Chain is", chain, switchNetworkAsync, polygon);
+    if (chain !== polygon && switchNetworkAsync) {
+      console.log('switching network!');
+      await switchNetworkAsync(polygon.id);
     }
 
+    dispatch(setJoined(true));
     dispatch(setColor(props.colour));
     dismiss();
   }
@@ -67,14 +83,14 @@ const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
         {isConnected && <div className="text-xs">Connected: {address}</div>}
         <p>{desc}</p>
         <div className="modal-action">
-          {props.moves.length <= 20 && !isConnected && <div className="join gap-1">
+          {!isConnected && <div className="join gap-1">
             <button className="btn join-item w-16" onClick={e => joinTeam(1)}><img src="/images/metamask.png" /></button>
             <button className="btn join-item w-16" onClick={e => joinTeam(2)}><img src="/images/walletconnect.png" /></button>
             <button className="btn join-item" onClick={e => joinTeam(0)}><FaGoogle /></button>
           </div>}
-          {props.moves.length <= 20 && isConnected && <button className="btn bg-primary" onClick={e => joinTeam(0)}>Join Us!</button>}
-          {props.moves.length <= 20 && <button className="btn" onClick={dismiss}>Maybe Later</button>}
-          {props.moves.length > 20 && <button className="btn" onClick={dismiss}>Ok!</button>}
+          {isConnected && <button className="btn bg-primary" onClick={e => joinTeam(0)}>Join Us!</button>}
+          {<button className="btn" onClick={dismiss}>Maybe Later</button>}
+          {/* {props.moves.length > 20 && <button className="btn" onClick={dismiss}>Ok!</button>} */}
         </div>
       </div>
     </div>

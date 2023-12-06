@@ -1,3 +1,5 @@
+import { BigNumberish } from "ethers"
+
 export enum Colors {
 	WHITE = "white",
 	BLACK = "black",
@@ -13,14 +15,14 @@ export enum Figures {
 }
 
 // for fen to config 
-export const nameMapping : { [key: string] : Figures} = {
+export const nameMapping: { [key: string]: Figures } = {
 	'P': Figures.PAWN,
 	'N': Figures.KNIGHT,
 	'B': Figures.BISHOP,
 	'R': Figures.ROOK,
 	'Q': Figures.QUEEN,
 	'K': Figures.KING,
-} 
+}
 
 export interface Nft {
 	boardState: { [key: string]: FigureData },
@@ -114,3 +116,11 @@ export const calculateScore = (arr?: Array<FigureData>): number => {
 }
 
 export const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+export interface ContractMovesHistory {
+	movesHistory: Array<string>, currentGameState: string, gameCompleted: boolean, result: BigNumberish
+}
+
+export interface ContractGameState {
+	isBlackToPlay: boolean, nextPlayTimer: BigNumberish, proposedMoves: Array<string>
+}
