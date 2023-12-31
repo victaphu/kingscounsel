@@ -8,10 +8,12 @@ provider:
   runtime: nodejs18.x
 
 functions:
-  botsPlayer:
-    handler: index.run
-    timeout: 90
-    events:
-      # Invoke Lambda function every 2nd minute from Mon-Fri
-      - schedule: rate(2 minutes)
-
+  # botsPlayer:
+  #   handler: index.run
+  #   timeout: 90
+  #   events:
+  #     # Invoke Lambda function every 2nd minute from Mon-Fri
+  #     - schedule: rate(2 minutes)
+  logsProcessor:
+    handler: chatlogs.run
+    url: true
