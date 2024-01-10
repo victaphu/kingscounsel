@@ -42,7 +42,7 @@ export const convertPositionToMove = (x: number, y: number): string => {
 
 export const convertMoveToPosition = (from: string): {x: number, y:number} => {
   return {
-    x: letters.indexOf(from[0]) + 1,
+    x: letters.indexOf(from[0].toUpperCase()) + 1,
     y: +from[1]
   }
 }

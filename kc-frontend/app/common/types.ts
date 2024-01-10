@@ -118,9 +118,11 @@ export const calculateScore = (arr?: Array<FigureData>): number => {
 export const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export interface ContractMovesHistory {
-	movesHistory: Array<string>, currentGameState: string, gameCompleted: boolean, result: BigNumberish
+	movesHistory: Array<string>, currentGameState: string, gameCompleted: boolean, result: BigNumberish,
+	whitePlayers: Array<string>
+  blackPlayers: Array<string>
 }
 
 export interface ContractGameState {
-	isBlackToPlay: boolean, nextPlayTimer: BigNumberish, proposedMoves: Array<string>
+	isBlackToPlay: boolean, nextPlayTimer: BigNumberish, proposedMoves: Array<string>, currentStep: number
 }

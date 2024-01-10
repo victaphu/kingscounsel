@@ -6,7 +6,9 @@ import { convertFromFEN, convertToFEN, makeMove } from "../common/engine";
 import { convertMoveToPosition, convertPositionToMove } from "../common/lib";
 
 interface GameState {
+	latestGameId: number;
 	color: Colors;
+	hoverCells: Array<string>;
 	figures: { [key: string]: FigureData };
 	fenState: string;
 	filteredFigures: { [key: string]: FigureData };
@@ -29,9 +31,11 @@ interface GameState {
 	selectedNft?: Nft;
 	nftDetails?: NftDetails;
 	replayMode: boolean;
+	currentStep: number;
 }
 
 const initialState: GameState = {
+	latestGameId: 0,
 	color: Colors.WHITE,
 	figures: initialFigures,
 	fenState: initialFEN,
@@ -57,7 +61,9 @@ const initialState: GameState = {
 		name: 'Battle Chess',
 		desc: '',
 		total: 3
-	}
+	},
+	currentStep: 0,
+	hoverCells: []
 }
 
 export const gameSlice = createSlice({
@@ -67,16 +73,25 @@ export const gameSlice = createSlice({
 		setNftDetails: (state, action: PayloadAction<NftDetails>) => {
 			state.nftDetails = action.payload;
 		},
+		setLatestGameId: (state, action: PayloadAction<number>) => {
+			state.latestGameId = action.payload;
+		},
 		setSelectedNft: (state, action: PayloadAction<Nft>) => {
 			state.selectedNft = action.payload;
 			state.figures = action.payload.boardState;
 			state.playHistory = action.payload.moves;
+		},
+		setFENState: (state, action: PayloadAction<string>) => {
+			state.fenState = action.payload;
 		},
 		setFigures: (state, action: PayloadAction<{[key: string] : FigureData}>) => {
 			state.figures = action.payload;
 		},
 		setPlayHistory: (state, action: PayloadAction<Array<Move>>) => {
 			state.playHistory = action.payload;
+		},
+		setHoverCells: (state, action: PayloadAction<Array<string>>) => {
+			state.hoverCells = action.payload;
 		},
 		setJoined: (state, action: PayloadAction<boolean>) => {
 			state.joined = action.payload;
@@ -102,13 +117,10 @@ export const gameSlice = createSlice({
 		proposeResign: (state, action: PayloadAction<boolean>) => {
 			state.proposeResign = action.payload;
 		},
-		proposeMove: (state, action: PayloadAction<string>) => {
+		proposeMove: (state, action: PayloadAction<[string, number]>) => {
 			const proposedMove = state.proposedMoves;
-
-			if (!proposedMove[action.payload]) {
-				proposedMove[action.payload] = 0;
-			}
-			proposedMove[action.payload] += 1;
+			console.log('proposed moves', action.payload);
+			proposedMove[action.payload[0]] = action.payload[1];
 		},
 		setBlackPlayers: (state, action: PayloadAction<Array<Player>>) => {
 			state.blackPlayers = action.payload;
@@ -198,6 +210,7 @@ export const gameSlice = createSlice({
 			state.proposedMoves = initialState.proposedMoves;
 			state.proposeResign = initialState.proposeResign;
 			state.moveMade = initialState.moveMade;
+			state.currentStep = initialState.currentStep;
 
 			state.joined = false;
 		},
@@ -206,6 +219,9 @@ export const gameSlice = createSlice({
 		},
 		setCurrentPlayer: (state, action: PayloadAction<Colors>) => {
 			state.currentTurn = action.payload;
+		},
+		setCurrentStep: (state, action: PayloadAction<number>) => {
+			state.currentStep = action.payload;
 		},
 		setPosition: (state, action: PayloadAction<number>) => {
 			state.currentPosition = action.payload;
@@ -227,7 +243,8 @@ export const gameSlice = createSlice({
 	}
 })
 
-export const { setColor,
+export const {
+	setColor,
 	changeFigurePosition,
 	removeFigure,
 	setGameWon,
@@ -250,9 +267,13 @@ export const { setColor,
 	setTimer,
 	setPlayHistory,
 	setFigures,
-	setPiecesCaptured
+	setPiecesCaptured,
+	setFENState,
+	setCurrentStep,
+	setHoverCells,
+	setLatestGameId,
 } = gameSlice.actions;
-
+export const selectLatestGameId = (state: RootState) => state.game.latestGameId;
 export const selectFigures = (state: RootState) => state.game.figures;
 export const selectColor = (state: RootState) => state.game.color;
 export const selectGameWon = (state: RootState) => state.game.gameWon;
@@ -276,5 +297,6 @@ export const selectMoveMade = (state: RootState) => state.game.moveMade;
 export const selectSelectedNft = (state: RootState) => state.game.selectedNft;
 export const selectNftDetails = (state: RootState) => state.game.nftDetails;
 export const selectReplayMode = (state: RootState) => state.game.replayMode;
-
+export const selectCurrentStep = (state: RootState) => state.game.currentStep;
+export const selectHoverCells = (state: RootState) => state.game.hoverCells;
 export default gameSlice.reducer

@@ -4,7 +4,8 @@ import { FigureData, Figures, calculateScore } from "@/app/common/types";
 import Figure from "@/app/components/Figure/Figure";
 
 interface CapturedPiecesProps {
-  piecesWon?: Array<FigureData>
+  piecesWon?: Array<FigureData>,
+  other?: Array<FigureData>
 }
 
 // create stacks
@@ -31,9 +32,11 @@ const CapturedPieces: React.FC<CapturedPiecesProps> = (props: CapturedPiecesProp
     stacks[piece.name].push(piece);
   })
 
+  const diff = calculateScore(props.piecesWon) - calculateScore(props.other);
+
   return (<div className="w-full flex flex-row gap-2">
     {Object.values(stacks).map((v, i)=>stackGroups(v, i))}
-    <div className="text-md">+{calculateScore(props.piecesWon)}</div>
+    <div className="text-md">{diff > 0 ? `+${diff}` : ''}</div>
   </div>)
 }
 

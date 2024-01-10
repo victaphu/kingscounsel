@@ -43,14 +43,14 @@ const ChessGame: React.FC<ChessGameProps> = (props: ChessGameProps) => {
   console.log(currentBoard);
   console.log(moves);
 
-  useEffect(() => {
-    generate(3).then(r => {
-      dispatch(setBlackPlayers(r));
-    });
-    generate(3).then(r => {
-      dispatch(setWhitePlayers(r));
-    })
-  }, []);
+  // useEffect(() => {
+  //   generate(3).then(r => {
+  //     dispatch(setBlackPlayers(r));
+  //   });
+  //   generate(3).then(r => {
+  //     dispatch(setWhitePlayers(r));
+  //   })
+  // }, []);
 
   useEffect(() => {
     dispatch(setReplayMode(props.replayMode ? true : false));

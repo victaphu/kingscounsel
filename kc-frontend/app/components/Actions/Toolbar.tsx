@@ -2,7 +2,7 @@
 import { selectReplayMode } from "@/app/redux/gameSlice";
 import { useAppSelector } from "@/app/redux/hooks";
 import React, { useEffect, useState } from "react";
-import { FaUsers, FaGlobe, FaList } from "react-icons/fa6";
+import { FaUsers, FaGlobe, FaList, FaChess } from "react-icons/fa6";
 interface ToolbarProps {
   changeTab: (e:number) => void
 }

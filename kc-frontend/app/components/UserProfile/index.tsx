@@ -3,7 +3,6 @@ import { getPlayerIcon } from "@/app/common/lib";
 import { Colors, Figures } from "@/app/common/types";
 import Figure from "../Figure/Figure";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { disconnect } from "process";
 import { FaGoogle } from "react-icons/fa6";
 
 interface UserProfileProps {
@@ -46,10 +45,9 @@ const BLACK_PIECE = <Figure figure={{ id: "-1", name: Figures.KING, x: 1, y: 1, 
 
 
 const UserProfile: React.FC<UserProfileProps> = (props: UserProfileProps) => {
-  const [connected, setConnected] = useState(false);
-  const { connector, isConnected, address } = useAccount();
+  const { isConnected, address } = useAccount();
   const { disconnect } = useDisconnect()
-  const { connectAsync, connectors, error, isLoading, pendingConnector } = useConnect();
+  const { connectAsync, connectors } = useConnect();
 
   // return <div className="">
   //   <button>Connect Wallet</button>

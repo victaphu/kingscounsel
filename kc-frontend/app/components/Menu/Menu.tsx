@@ -4,6 +4,7 @@ import React from "react";
 import { FaBars, FaChess, FaChessBoard, FaRegCircleQuestion, FaRegUser, FaTrophy } from "react-icons/fa6";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation'
+import { useSignMessage } from "wagmi";
 
 interface MenuProps {
 }
@@ -14,15 +15,21 @@ const Menu: React.FC<MenuProps> = (props: MenuProps) => {
   const pathname = usePathname()
   const nftDetails = useAppSelector(selectNftDetails);
 
+  const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
+    message: 'gm wagmi frens :)'
+  })
+
   const resetBoard = () => {
     dispatch(setGameWon(currentPlayer));
     dispatch(setGameStarted(false));
     // dispatch(resetGame());;
   }
 
+  console.log(data);
+
   return <div className="rounded-s-lg bg-base-300 h-full motion-reduce:!opacity-100" style={{ "opacity": "1" }}>
     <ul className="menu">
-      <li className="menu-title lg:text-xl text-md" onClick={resetBoard}>
+      <li className="menu-title lg:text-xl text-md" onClick={() => signMessage()}>
         <FaBars />
       </li>
       <li>

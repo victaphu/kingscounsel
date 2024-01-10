@@ -1,8 +1,8 @@
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Colors, Player } from "@/app/common/types";
 import CapturedPieces from "./CapturedPieces";
-import { selectColor, selectCurrentPlayer, selectEatenPieces, selectGameWon, selectIsGameStarted, selectJoined, selectTimer } from "@/app/redux/gameSlice";
+import { selectBlackPlayers, selectColor, selectCurrentPlayer, selectEatenPieces, selectGameWon, selectIsGameStarted, selectJoined, selectTimer, selectWhitePlayers } from "@/app/redux/gameSlice";
 import { useAppSelector } from "@/app/redux/hooks";
 import Countdown, { CountdownApi, calcTimeDelta } from 'react-countdown';
 import PlayerList from "./PlayersList";
@@ -11,8 +11,6 @@ import JoinButton from "./JoinTeamButton";
 import JoinedTeamToolbar from "./JoinedTeamToolbar";
 import NftSelector from "./NftSelector";
 
-import fkcController from "@/app/abi/FKCController.json";
-import { useChainId, useContractRead } from "wagmi";
 import ClientOnly from "../../ClientOnly/ClientOnly";
 
 interface PlayerProps {
@@ -36,17 +34,18 @@ interface GameState {
 
 const PlayerViewer: React.FC<PlayerProps> = (props: PlayerProps) => {
   const [open, setOpen] = useState(false);
-  const chainId = useChainId();
+  const blackPlayers = useAppSelector(selectBlackPlayers);
+  const whitePlayers = useAppSelector(selectWhitePlayers);
 
-  const { data, isLoading, isSuccess }: { data: GameState | undefined, isLoading: boolean, isSuccess: boolean } = useContractRead({
-    abi: fkcController.abi,
-    address: `0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER!}`,
-    functionName: "getCurrentGameState",
-    chainId: chainId,
-  })
-
-  const players: Array<Player> | undefined = (props.isWhite ? data?.whitePlayers : data?.blackPlayers)?.map(e => ({ wallet: e }));
-  console.log(players);
+  const players = useMemo(() => {
+    if (props.isWhite) {
+      return whitePlayers;
+    }
+    else {
+      return blackPlayers;
+    }
+ 
+  }, [props.isWhite, blackPlayers, whitePlayers])
 
   const handleClicked = () => {
     if (!players || players.length === 0) {
@@ -156,7 +155,7 @@ const Player: React.FC<PlayerProps> = (props: PlayerProps) => {
           <PlayerViewer {...props} />
         </ClientOnly>
 
-        <CapturedPieces piecesWon={piecesEaten.filter(e => props.isWhite ? e.color === Colors.BLACK : e.color === Colors.WHITE)} />
+        <CapturedPieces piecesWon={piecesEaten.filter(e => props.isWhite ? e.color === Colors.BLACK : e.color === Colors.WHITE)} other={piecesEaten.filter(e => props.isWhite ? e.color === Colors.WHITE : e.color === Colors.BLACK)} />
       </div>
       {!replayMode && <TimerRender {...props} />}
       {!replayMode && <JoinButton {...props} />}

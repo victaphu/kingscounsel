@@ -1,14 +1,12 @@
 "use client"
-import React, { useState } from "react";
-import { Colors, Move, Player } from "@/app/common/types";
-import { getOtherColor, getPlayerIcon } from "@/app/common/lib";
+import React from "react";
+import { Colors, Move } from "@/app/common/types";
+import { getOtherColor } from "@/app/common/lib";
 import { useAppDispatch } from "@/app/redux/hooks";
 import { setColor, setJoined, setShowJoin } from "@/app/redux/gameSlice";
-import { useAccount, useConnect, useDisconnect, useNetwork, useSwitchNetwork } from "wagmi";
-import { FaGoogle, FaQrcode } from "react-icons/fa6";
-import { AbstractProvider } from "ethers";
-import { lineaTestnet, localhost } from "viem/chains";
-import { polygon } from "wagmi/chains";
+import { useAccount } from "wagmi";
+import { FaGoogle } from "react-icons/fa6";
+import GameService from "@/app/services/GameService";
 
 interface JoinTeamProps {
   show?: boolean,
@@ -28,14 +26,7 @@ interface JoinTeamProps {
 
 const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
   const dispatch = useAppDispatch();
-  const { connector, isConnected, address } = useAccount();
-  const { connectAsync, connectors, error, isLoading, pendingConnector } = useConnect();
-  const { chains, pendingChainId, switchNetworkAsync } = useSwitchNetwork();
-  const { chain } = useNetwork();
-
-  const [joining, setJoining] = useState(false);
-
-  console.log("Is connected", isConnected, connector, address, chain, switchNetworkAsync);
+  const { isConnected, address } = useAccount();
 
   let desc = `The ${props.colour} Team welcomes your contribution! Join us in our epic battle against the ${getOtherColor(props.colour)} Team! `
   // if (props.moves.length <= 20) {
@@ -50,24 +41,8 @@ const JoinTeamDialog: React.FC<JoinTeamProps> = (props: JoinTeamProps) => {
   }
 
   const joinTeam = async (type: number) => {
-    console.log('join-team', type);
-    // connect the team
-    let result;
-    if (!isConnected) {
-      // const provider: AbstractProvider = await connectors[type].getProvider();
-      // connect first then join the team
-      result = await connectAsync({ connector: connectors[type] });
-      console.log(result);
-    }
-    
-    // if (chain !== lineaTestnet && switchNetworkAsync) {
-    //   await switchNetworkAsync(lineaTestnet.id);
-    // }
-    console.log("Chain is", chain, switchNetworkAsync, polygon);
-    if (chain !== polygon && switchNetworkAsync) {
-      console.log('switching network!');
-      await switchNetworkAsync(polygon.id);
-    }
+    const result = await GameService.joinTeam(props.colour === Colors.BLACK);
+    console.log(result);
 
     dispatch(setJoined(true));
     dispatch(setColor(props.colour));

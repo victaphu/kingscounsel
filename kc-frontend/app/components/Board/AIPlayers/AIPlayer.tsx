@@ -38,7 +38,7 @@ const AIBot: React.FC<AIBotProps> = ({ botPlayer, botLevel }: AIBotProps) => {
       const from = convertMoveToPosition(start[0][0]);
       const to = convertMoveToPosition(start[0][1]);
 
-      dispatch(proposeMove(start[0][0] + start[0][1]));
+      // dispatch(proposeMove(start[0][0] + start[0][1]));
       setProposed(true);
     }
     finally {
@@ -135,7 +135,7 @@ const AIBot: React.FC<AIBotProps> = ({ botPlayer, botLevel }: AIBotProps) => {
         setTID(window.setTimeout(chooseMoves, 10000));
       }
       else {
-        setTID(window.setTimeout(proposeMoves, 1000));
+        // setTID(window.setTimeout(proposeMoves, 1000));
       }
       setProposed(true);
     }

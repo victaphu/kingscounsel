@@ -20,6 +20,8 @@ import {
 import { useAppDispatch, useAppSelector } from "@/app/redux/hooks";
 import { convertFromFEN, getStatus, validMoves } from "@/app/common/engine";
 import { convertMoveToPosition, convertPositionToMove, getOtherColor } from "@/app/common/lib";
+import useMoveSubmit from "@/app/redux/blockchain/useMoveSubmit";
+import ConfirmDlg from "../Dialog/ConfirmDlg";
 
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
 const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
@@ -40,6 +42,8 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
 	const proposedMoves = useAppSelector(selectProposed);
 	const joined = useAppSelector(selectJoined);
 	const moveMade = useAppSelector(selectMoveMade);
+	const { submitMove } = useMoveSubmit();
+	const { show } = ConfirmDlg({title: 'Submit Move', message: 'Are you sure you want to submit the move?'});
 
 	let [isKingInCheck, setIsKingInCheck] = useState<boolean>(false);
 	let dangerousCells: MutableRefObject<{
@@ -79,7 +83,7 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
 		cellsFigure[`${x}-${y}`] = figure;
 		// dispatch(changeFigurePosition({ figure, x, y, captured, figureOnCell }));
 		dispatch(setMoveMade(true));
-		dispatch(proposeMove(convertPositionToMove(figure.x, figure.y) + convertPositionToMove(x, y)));
+		// dispatch(proposeMove(convertPositionToMove(figure.x, figure.y) + convertPositionToMove(x, y)));
 		setChoseFigurePos(null);
 	}
 
@@ -92,7 +96,15 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
 			return;
 		}
 		if (!choseFigurePos.availableCells[`${x}-${y}`]) return;
-		moveOn(choseFigurePos.figure, x, y, false);
+		console.log('propose move');
+		show(()=>{
+			// moveOn(choseFigurePos.figure, x, y, false);
+			const f = choseFigurePos.figure;
+			submitMove({move: convertPositionToMove(f.x, f.y) + convertPositionToMove(x, y)}).then(() => {
+				moveOn(choseFigurePos.figure, x, y, false);
+			});
+
+		});
 		// dispatch(setCurrentPlayer(sides.enemy));
 	}
 
@@ -104,22 +116,24 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
 		if (!props.replayMode) {
 			const totalMoves = Object.values(proposedMoves).reduce((a, b) => a + b, 0);
 
+			// console.log('>>', proposedMoves);
 			Object.entries(proposedMoves).forEach(p => {
 				const move = p[0];
 				const total = p[1];
 				const from = convertMoveToPosition(move.substring(0, 2));
 				const to = convertMoveToPosition(move.substring(2, 4));
-				proposedCells[`${from.x}-${from.y}`] = 50;
-				proposedCells[`${to.x}-${to.y}`] = total / totalMoves * 100;
+				// proposedCells[`${from.x}-${from.y}`] = 50;
+				proposedCells[`${to.x}-${to.y}`] = total; //total / totalMoves * 100;
 			})
 
-			// console.log('>>', proposedCells, totalMoves);
+			console.log('>>', proposedCells, totalMoves);
 		}
 
 		for (let y = 8; y >= 1; y--) {
 			for (let x = 1; x <= 8; x++) {
 				cellsFigure[`${x}-${y}`] = null;
 				const boardLetter = BoardLettersByNumber[x];
+				console.log(proposedCells[`${x}-${y}`]);
 				if ((y + x) % 2 !== 0) {
 					cells.push(<Cell
 						color={Colors.BLACK} x={boardLetter} y={y}
@@ -199,7 +213,14 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
 			return;
 		}
 		if (choseFigurePos && choseFigurePos.availableCells[`${figure.x}-${figure.y}`] && choseFigurePos.figure.color !== figure.color) {
-			moveOrEat(choseFigurePos.figure, figure.x, figure.y);
+			show(()=>{
+				// 
+				const f = choseFigurePos.figure;
+				submitMove({move: convertPositionToMove(f.x, f.y) + convertPositionToMove(figure.x, figure.y)}).then(() => {
+					moveOrEat(choseFigurePos.figure, figure.x, figure.y);
+				});
+			});
+			
 			// dispatch(setCurrentPlayer(sides.enemy));
 			return;
 		}
@@ -212,7 +233,6 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
 		if (sides.ally !== figure.color) return;
 
 		if (isKingInCheck && figure.name !== Figures.KING) return;
-
 		setChoseFigurePos({
 			figure,
 			availableCells: getAvailableCells(figure)
@@ -244,9 +264,12 @@ const Board: React.FC<BoardProps> = (props: BoardProps) => {
 
 	const getAvailableCells = (figure: FigureData, isForDangerousCells: boolean = false): { [key: string]: boolean } => {
 		const obj: { [key: string]: boolean } = {};
+		// console.log(fenConfig);
 		validMoves(convertFromFEN(fenConfig), letters[figure.x - 1] + figure.y).forEach((m: string) => {
 			obj[`${letters.indexOf(m[0]) + 1}-${m[1]}`] = true
 		})
+
+		// console.log('available moves', obj);
 
 		return obj;
 	}
