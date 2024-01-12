@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import fkcController from "@/app/abi/FKCController.json";
 import { ethers } from "ethers";
 import { recoverMessageAddress, verifyMessage } from "viem";
+import { NextResponse } from "next/server";
 export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
   console.log(data, error);
   console.log(await supabase.getChannels());
   
-  return Response.json({ data });
+  return NextResponse.json({ data });
 }
 
 export async function POST(request: Request) {
