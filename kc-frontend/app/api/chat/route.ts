@@ -7,23 +7,24 @@ export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// const supabase = createClient(supabaseUrl, supabaseKey);
 
-const superUser = createClient(supabaseUrl, process.env.SUPABASE_KEY!);
+// const superUser = createClient(supabaseUrl, process.env.SUPABASE_KEY!);
 const contract = new ethers.Contract(`0x${process.env.NEXT_PUBLIC_CONTRACT_FKCCONTROLLER}`, fkcController.abi as ethers.InterfaceAbi, ethers.getDefaultProvider('matic'));
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const gameId = searchParams.get('gameId');
-  let { data, error } = await supabase.from('messages')
-    .select('*')
-    .eq('game_id', gameId)
-    .order('timestamp', { ascending: false })
-    .limit(100);
-  console.log(data, error);
-  console.log(await supabase.getChannels());
+  // let { data, error } = await supabase.from('messages')
+  //   .select('*')
+  //   .eq('game_id', gameId)
+  //   .order('timestamp', { ascending: false })
+  //   .limit(100);
+  // console.log(data, error);
+  // console.log(await supabase.getChannels());
   
-  return NextResponse.json({ data });
+  // return NextResponse.json({ data });
+  return NextResponse.json({});
 }
 
 export async function POST(request: Request) {
@@ -51,11 +52,11 @@ export async function POST(request: Request) {
     if (black !== curr && white !== curr) {
       return new Response(null, { status: 403, statusText: "Player not registered" });
     }
-    const { error } = await superUser.from('messages').insert({ game_id: Number(curr), username: address, text: message, message_sig: signature });
+    // const { error } = await superUser.from('messages').insert({ game_id: Number(curr), username: address, text: message, message_sig: signature });
 
-    if (error) {
-      return new Response(null, { status: 500, statusText: error.message });
-    }
+    // if (error) {
+    //   return new Response(null, { status: 500, statusText: error.message });
+    // }
 
     return new Response();
   }

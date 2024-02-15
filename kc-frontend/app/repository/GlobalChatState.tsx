@@ -4,18 +4,18 @@ import { configuration } from "../common/config";
 
 const supabaseUrl = configuration.supabaseUrl;
 const supabaseKey = configuration.supabaseKey;
-const instance = createClient(supabaseUrl, supabaseKey);
+// const instance = createClient(supabaseUrl, supabaseKey);
 
-instance.channel('kings-council-message-insert-channel')
-  .on(
-    'postgres_changes',
-    { event: 'INSERT', schema: 'public', table: 'messages' },
-    (payload) => {
-      console.log('payload received', payload);
-      listeners.map(e=>e(payload));
-    }
-  )
-  .subscribe();
+// instance.channel('kings-council-message-insert-channel')
+//   .on(
+//     'postgres_changes',
+//     { event: 'INSERT', schema: 'public', table: 'messages' },
+//     (payload) => {
+//       console.log('payload received', payload);
+//       listeners.map(e=>e(payload));
+//     }
+//   )
+//   .subscribe();
 
 const listeners: Array<(payload: any) => void> = [];
 
